@@ -12,7 +12,7 @@ typedef struct
 	int         nedge;
 	int         bdirected;
 	int         weight[M_GRAPH_MAX_VERTEX_NUM][M_GRAPH_MAX_VERTEX_NUM];
-}graph_t;
+} graph_t;
 
 static graph_t g_graphs[M_GRAPH_MAX_GRAPH_NUM] = {0};
 static int     g_graph_num                     = 0;
