@@ -1,17 +1,11 @@
 package graph
 
-import (
-	"fmt"
-)
-
 type Graph struct {
 	vertexes []Vertex
-	edges    Edges
-	directed bool
 }
 
-func NewGraph(directed bool) *Graph {
-	return &Graph{directed: directed, edges: NewEdges()}
+func NewGraph() Graph {
+	return Graph{}
 }
 
 func (g *Graph) GetVertexNum() int {
@@ -21,79 +15,52 @@ func (g *Graph) GetVertexNum() int {
 	return len(g.vertexes)
 }
 
-func (g *Graph) GetEdgeNum() (int, error) {
-	if g == nil {
-		return -1, fmt.Errorf("nil receiver")
+func (g *Graph) GetVertexInDegree(idx int) int {
+	if g == nil || !g.IsValidVertexIndex(idx) {
+		return 0
 	}
 
-	result, err := g.edges.GetNum()
-	if err != nil {
-		return result, err
+	return g.vertexes[idx].GetInDegree()
+}
+
+func (g *Graph) GetVertexOutDegree(idx int) int {
+	if g == nil || !g.IsValidVertexIndex(idx) {
+		return 0
 	}
-	if !g.directed {
-		result /= 2
-	}
-	return result, nil
+
+	return g.vertexes[idx].GetOutDegree()
 }
 
 func (g *Graph) IsValidVertexIndex(index int) bool {
 	return 0 <= index && index < g.GetVertexNum()
 }
 
-func (g *Graph) AppendVertex(data interface{}) error {
-	if g == nil || data == nil {
-		return fmt.Errorf("nil input: graph(%v), data(%v)", g, data)
+func (g *Graph) AddVertex(data ...interface{}) {
+	if g == nil {
+		return
 	}
 
-	g.vertexes = append(g.vertexes, NewVertex(data))
-	return nil
+	for _, d := range data {
+		g.vertexes = append(g.vertexes, NewVertex(d))
+	}
 }
 
-func (g *Graph) DeleteVertex(index int) error {
-	if g == nil {
-		return fmt.Errorf("nil receiver")
+func (g *Graph) DelVertex(index int) {
+	if g == nil || !g.IsValidVertexIndex(index) {
+		return
 	}
 
-	if !g.IsValidVertexIndex(index) {
-		return fmt.Errorf("invalid vertex index: %v", index)
+	for neighbor := g.vertexes[index].next; neighbor != nil; neighbor = neighbor.next {
+		g.vertexes[neighbor.idx].indegree -= 1
 	}
 	g.vertexes = append(g.vertexes[0:index], g.vertexes[index+1:]...)
-	return nil
 }
 
-func (g *Graph) AppendEdge(from int, to int, weight int) error {
-	if g == nil {
-		return fmt.Errorf("nil receiver")
+func (g *Graph) AddEdge(from, to int) {
+	if g == nil || !g.IsValidVertexIndex(from) || !g.IsValidVertexIndex(to) {
+		return
 	}
 
-	if !g.IsValidVertexIndex(from) || !g.IsValidVertexIndex(to) {
-		return fmt.Errorf("invalid vertex index: %v %v", from, to)
-	}
-
-	g.edges.AppendEdge(from, to, weight)
-	fromVertex, toVertex := g.vertexes[from], g.vertexes[to]
-	if err := fromVertex.AddNext(to); err != nil {
-		return err
-	}
-	if err := toVertex.IncInDegree(); err != nil {
-		return err
-	}
-
-	if g.directed {
-		return nil
-	}
-
-	g.edges.AppendEdge(to, from, weight)
-	if err := toVertex.AddNext(from); err != nil {
-		return err
-	}
-	return fromVertex.IncInDegree()
-}
-
-func (g *Graph) GetEdgeWeight(from, to int) (int, error) {
-	if g == nil {
-		return -1, fmt.Errorf("nil receiver")
-	}
-
-	return g.edges.GetWeight(from, to)
+	g.vertexes[from].AddNext(to)
+	g.vertexes[to].IncInDegree()
 }

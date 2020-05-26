@@ -1,14 +1,10 @@
 package graph
 
-import (
-	"fmt"
-)
-
 type Vertex struct {
 	data      interface{}
 	indegree  int
 	outdegree int
-	nexts     *VertexIndex
+	next      *VertexIndex
 }
 
 type VertexIndex struct {
@@ -20,20 +16,34 @@ func NewVertex(data interface{}) Vertex {
 	return Vertex{data: data}
 }
 
-func (v *Vertex) AddNext(nextIndex int) error {
+func (v *Vertex) AddNext(nextIndex int) {
 	if v == nil {
-		return fmt.Errorf("nil receiver")
+		return
 	}
-	idx := VertexIndex{nextIndex, v.nexts}
-	v.nexts = &idx
+	idx := VertexIndex{nextIndex, v.next}
+	v.next = &idx
 	v.outdegree += 1
-	return nil
 }
 
-func (v *Vertex) IncInDegree() error {
+func (v *Vertex) IncInDegree() {
 	if v == nil {
-		return fmt.Errorf("nil receiver")
+		return
 	}
 	v.indegree += 1
-	return nil
+}
+
+func (v *Vertex) GetInDegree() int {
+	if v == nil {
+		return 0
+	}
+
+	return v.indegree
+}
+
+func (v *Vertex) GetOutDegree() int {
+	if v == nil {
+		return 0
+	}
+
+	return v.outdegree
 }
