@@ -1,8 +1,6 @@
 package graph
 
 import (
-	"fmt"
-
 	"github.com/pirlo-san/algorithm/queue"
 )
 
@@ -24,7 +22,6 @@ func (g *Graph) TopoSort() []interface{} {
 		if idx == nil {
 			break
 		}
-		fmt.Println(idx)
 		result = append(result, g.vertexes[idx.(int)].data)
 		next := g.vertexes[idx.(int)].next
 		for next != nil {
